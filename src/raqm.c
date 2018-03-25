@@ -31,13 +31,13 @@
 
 #include <fribidi.h>
 #include <hb.h>
-#include <hb-ft.h>
 
 #include "raqm.h"
 
 #if FRIBIDI_MAJOR_VERSION >= 1
 #define USE_FRIBIDI_EX_API
 #endif
+
 
 /**
  * SECTION:raqm
@@ -67,7 +67,7 @@
  *     int ret = 1;
  *
  *     FT_Library library = NULL;
- *     FT_Face face = NULL;
+ *     FbTypeface* face = NULL;
  *
  *     if (argc < 5)
  *     {
@@ -163,7 +163,7 @@ typedef enum {
 } _raqm_flags_t;
 
 typedef struct {
-  FT_Face       ftface;
+  FbTypeface*       ftface;
   hb_language_t lang;
   hb_script_t   script;
 } _raqm_text_info;
@@ -240,8 +240,9 @@ _raqm_free_text_info (raqm_t *rq)
 
   for (size_t i = 0; i < rq->text_len; i++)
   {
-    if (rq->text_info[i].ftface)
-      FT_Done_Face (rq->text_info[i].ftface);
+        // TODO
+        // if (rq->text_info[i].ftface)
+      // FT_Done_Face (rq->text_info[i].ftface);
   }
 
   free (rq->text_info);
@@ -620,32 +621,11 @@ raqm_add_font_feature (raqm_t     *rq,
   return ok;
 }
 
-static hb_font_t *
-_raqm_create_hb_font (raqm_t *rq,
-                      FT_Face face)
-{
-  hb_font_t *font;
 
-#ifdef HAVE_HB_FT_FONT_CREATE_REFERENCED
-  font = hb_ft_font_create_referenced (face);
-#else
-  FT_Reference_Face (face);
-  font = hb_ft_font_create (face, (hb_destroy_func_t) FT_Done_Face);
-#endif
-
-#ifdef HAVE_HB_FT_FONT_SET_LOAD_FLAGS
-  if (rq->ft_loadflags >= 0)
-    hb_ft_font_set_load_flags (font, rq->ft_loadflags);
-#else
-  (void)rq;
-#endif
-
-  return font;
-}
 
 static bool
 _raqm_set_freetype_face (raqm_t *rq,
-                         FT_Face face,
+                         FbTypeface* face,
                          size_t  start,
                          size_t  end)
 {
@@ -661,13 +641,14 @@ _raqm_set_freetype_face (raqm_t *rq,
   if (!rq->text_info)
     return false;
 
-  for (size_t i = start; i < end; i++)
-  {
-    if (rq->text_info[i].ftface)
-        FT_Done_Face (rq->text_info[i].ftface);
-    rq->text_info[i].ftface = face;
-    FT_Reference_Face (face);
-  }
+// TODO
+//  for (size_t i = start; i < end; i++)
+//  {
+//    if (rq->text_info[i].ftface)
+//        FT_Done_Face (rq->text_info[i].ftface);
+//    rq->text_info[i].ftface = face;
+//    FT_Reference_Face (face);
+//  }
 
   return true;
 }
@@ -675,9 +656,9 @@ _raqm_set_freetype_face (raqm_t *rq,
 /**
  * raqm_set_freetype_face:
  * @rq: a #raqm_t.
- * @face: an #FT_Face.
+ * @face: an #FbTypeface*.
  *
- * Sets an #FT_Face to be used for all characters in @rq.
+ * Sets an #FbTypeface* to be used for all characters in @rq.
  *
  * See also raqm_set_freetype_face_range().
  *
@@ -688,7 +669,7 @@ _raqm_set_freetype_face (raqm_t *rq,
  */
 bool
 raqm_set_freetype_face (raqm_t *rq,
-                        FT_Face face)
+                        FbTypeface* face)
 {
   return _raqm_set_freetype_face (rq, face, 0, rq->text_len);
 }
@@ -696,11 +677,11 @@ raqm_set_freetype_face (raqm_t *rq,
 /**
  * raqm_set_freetype_face_range:
  * @rq: a #raqm_t.
- * @face: an #FT_Face.
+ * @face: an #FbTypeface*.
  * @start: index of first character that should use @face.
  * @len: number of characters using @face.
  *
- * Sets an #FT_Face to be used for @len-number of characters staring at @start.
+ * Sets an #FbTypeface* to be used for @len-number of characters staring at @start.
  * The @start and @len are input string array indices (i.e. counting bytes in
  * UTF-8 and scaler values in UTF-32).
  *
@@ -717,7 +698,7 @@ raqm_set_freetype_face (raqm_t *rq,
  */
 bool
 raqm_set_freetype_face_range (raqm_t *rq,
-                              FT_Face face,
+                              FbTypeface* face,
                               size_t  start,
                               size_t  len)
 {
@@ -1903,3 +1884,4 @@ _raqm_in_hangul_syllable (hb_codepoint_t ch)
   (void)ch;
   return false;
 }
+

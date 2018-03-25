@@ -31,12 +31,13 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include <ft2build.h>
-#include FT_FREETYPE_H
+#include <fribidi.h>
+#include <hb.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
+
 
 /**
  * raqm_t:
@@ -47,6 +48,13 @@ extern "C" {
  * Since: 0.1
  */
 typedef struct _raqm raqm_t;
+
+struct _FbTypeface;
+
+typedef struct _FbTypeface FbTypeface;
+
+static hb_font_t* _raqm_create_hb_font(raqm_t *rq,
+                      FbTypeface* face);
 
 /**
  * raqm_direction_t:
@@ -75,7 +83,7 @@ typedef enum
  * @x_offset: the horizontal movement of the glyph from the current point.
  * @y_offset: the vertical movement of the glyph from the current point.
  * @cluster: the index of original character in input text.
- * @ftface: the @FT_Face of the glyph.
+ * @skface: the @FbTypeface of the glyph.
  *
  * The structure that holds information about output glyphs, returned from
  * raqm_get_glyphs().
@@ -87,7 +95,7 @@ typedef struct raqm_glyph_t {
     int x_offset;
     int y_offset;
     uint32_t cluster;
-    FT_Face ftface;
+    FbTypeface* ftface;
 } raqm_glyph_t;
 
 raqm_t *
@@ -126,11 +134,11 @@ raqm_add_font_feature  (raqm_t     *rq,
 
 bool
 raqm_set_freetype_face (raqm_t *rq,
-                        FT_Face face);
+                        FbTypeface* face);
 
 bool
 raqm_set_freetype_face_range (raqm_t *rq,
-                              FT_Face face,
+                              FbTypeface* face,
                               size_t  start,
                               size_t  len);
 
