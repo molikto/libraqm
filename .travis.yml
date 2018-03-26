@@ -9,7 +9,7 @@ matrix:
         - export UNIBREAK_CFLAGS=-I/usr/include UNIBREAK_LIBS=-lunibreak
         - ./autogen.sh
         - ./configure --enable-gtk-doc
-        - make check
+        - make check || (cat `find . -name '*.log'` && false)
         - make distcheck
       after_success:
         - bash .ci/deploy-docs.sh
@@ -20,7 +20,7 @@ matrix:
         - export UNIBREAK_CFLAGS=-I/usr/include UNIBREAK_LIBS=-lunibreak
         - ./autogen.sh
         - ./configure
-        - make check
+        - make check || (cat `find . -name '*.log'` && false)
 
     - os: osx
       before_install:
@@ -34,7 +34,7 @@ matrix:
       script:
         - ./autogen.sh
         - ./configure
-        - make check
+        - make check || (cat `find . -name '*.log'` && false)
 
 addons:
   apt:

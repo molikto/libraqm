@@ -28,6 +28,16 @@ raqm_test_LDADD = \
 
 TEST_FILES = \
     buffer-flags-1.test \
+    direction-ltr-1.test \
+    direction-ltr-2.test \
+    direction-ltr-3.test \
+    direction-ltr-4.test \
+    direction-ltr-5.test \
+    direction-rtl-1.test \
+    direction-rtl-2.test \
+    direction-rtl-3.test \
+    direction-rtl-4.test \
+    direction-rtl-5.test \
     empty-text.test \
     features-arabic.test \
     features-kerning.test \
@@ -50,16 +60,6 @@ TEST_FILES = \
     test3.test \
     test4.test \
     test5.test \
-    test1_LTR.test \
-    test2_LTR.test \
-    test3_LTR.test \
-    test4_LTR.test \
-    test5_LTR.test \
-    test1_RTL.test \
-    test2_RTL.test \
-    test3_RTL.test \
-    test4_RTL.test \
-    test5_RTL.test \
     cursor_position1.test \
     cursor_position2.test \
     cursor_position3.test \
@@ -71,6 +71,8 @@ TEST_FILES = \
     cursor_position_GB9.test \
     cursor_position_GB9a.test
     $(NULL)
+
+# direction-ttb-1.test # Broken on Travis, probably old HarfBuzz/FreeType
 
 if HAVE_GLIB
 check_PROGRAMS += raqm-test
