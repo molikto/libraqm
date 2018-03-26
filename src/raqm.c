@@ -238,13 +238,6 @@ _raqm_free_text_info (raqm_t *rq)
   if (!rq->text_info)
     return;
 
-  for (size_t i = 0; i < rq->text_len; i++)
-  {
-        // TODO
-        // if (rq->text_info[i].ftface)
-      // FT_Done_Face (rq->text_info[i].ftface);
-  }
-
   free (rq->text_info);
   rq->text_info = NULL;
 }
@@ -641,14 +634,10 @@ _raqm_set_freetype_face (raqm_t *rq,
   if (!rq->text_info)
     return false;
 
-// TODO
-//  for (size_t i = start; i < end; i++)
-//  {
-//    if (rq->text_info[i].ftface)
-//        FT_Done_Face (rq->text_info[i].ftface);
-//    rq->text_info[i].ftface = face;
-//    FT_Reference_Face (face);
-//  }
+  for (size_t i = start; i < end; i++)
+  {
+    rq->text_info[i].ftface = face;
+  }
 
   return true;
 }
