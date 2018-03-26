@@ -56,6 +56,10 @@ typedef struct _FbTypeface FbTypeface;
 static hb_font_t* _raqm_create_hb_font(raqm_t *rq,
                       FbTypeface* face);
 
+static int _raqm_ascender(FbTypeface *face);
+
+static int _raqm_descender(FbTypeface *face);
+
 /**
  * raqm_direction_t:
  * @RAQM_DIRECTION_DEFAULT: Detect paragraph direction automatically.

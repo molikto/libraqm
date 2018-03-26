@@ -32,6 +32,7 @@
 #include <fribidi.h>
 #include <hb.h>
 #include <linebreak.h>
+#include <stdlib.h>
 
 #include "raqm.h"
 
@@ -1386,12 +1387,12 @@ _raqm_line_break (raqm_t *rq)
   x = 0;
   for (size_t i = 0; i < glyph_count; i++)
   {
-    FT_Face face;
+    FbTypeface* face;
     int ascender, descender, leading;
 
     face = rq->text_info[rq->glyphs[i].cluster].ftface;
-    ascender = face->size->metrics.ascender;
-    descender = -face->size->metrics.descender;
+    ascender = _raqm_ascender(face);
+    descender = _raqm_descender(face);
     leading = ascender + descender;
 
     if (rq->glyphs[i].line != line)
