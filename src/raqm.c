@@ -193,9 +193,7 @@ struct _raqm {
   _raqm_flags_t    flags;
 
   int              ft_loadflags;
-
-  int              line_width;
-  raqm_alignment_t alignment;
+	char *breaks;
 };
 
 struct _raqm_run {
@@ -306,10 +304,6 @@ raqm_create (void)
   rq->flags = RAQM_FLAG_NONE;
 
   rq->ft_loadflags = -1;
-
-  rq->line_width = -1;
-
-  rq->alignment = RAQM_ALIGNMENT_LEFT;
 
   return rq;
 }
@@ -746,56 +740,6 @@ raqm_set_freetype_load_flags (raqm_t *rq,
   return true;
 }
 
-/**
- * raqm_set_width:
- * @rq: a #raqm_t.
- * @width: the line width.
- *
- * Sets the maximum line width for the paragraph. Causes Raqm to break lines
- * exceeding @width. By default no line breaking takes place, and negative
- * @width has the same effect.
- *
- * Return value:
- * %true if no errors happened, %false otherwise.
- *
- * Since: 0.3
- */
-bool
-raqm_set_width (raqm_t *rq,
-                int     width)
-{
-  if (!rq)
-    return false;
-
-  rq->line_width = width;
-
-  return true;
-}
-
-/**
- * raqm_set_alignment:
- * @rq: a #raqm_t.
- * @alignment: the alignment of paragraph.
- *
- * Sets the paragraph alignment. By default text is left aligned. Has no effect
- * if line width is not set, see raqm_set_width().
- *
- * Return value:
- * %true if no errors happened, %false otherwise.
- *
- * Since: 0.3
- */
-bool
-raqm_set_alignment (raqm_t           *rq,
-                    raqm_alignment_t  alignment)
-{
-  if (!rq)
-    return false;
-
-  rq->alignment = alignment;
-
-  return true;
-}
 
 static bool
 _raqm_itemize (raqm_t *rq);
@@ -1052,7 +996,7 @@ _raqm_reorder_runs (const FriBidiCharType *types,
 }
 
 static bool
-_raqm_find_line_breaks (raqm_t *rq, bool *result)
+_raqm_find_line_breaks (raqm_t *rq)
 {
   char *breaks = NULL;
   const char *lang;
@@ -1066,18 +1010,7 @@ _raqm_find_line_breaks (raqm_t *rq, bool *result)
   init_linebreak ();
   set_linebreaks_utf32 (rq->text, rq->text_len, lang, breaks);
 
-  for (size_t i = 0; i < rq->text_len; i++)
-  {
-    if (breaks[i] == LINEBREAK_MUSTBREAK || breaks[i] == LINEBREAK_ALLOWBREAK)
-    {
-      result[i] = true;
-    }
-    else
-      result[i] = false;
-  }
-
-  free (breaks);
-
+  rq->breaks = breaks;
   return true;
 }
 
@@ -1121,209 +1054,20 @@ _raqm_next_is_same_cluster (raqm_t *rq, size_t idx, size_t count)
 static bool
 _raqm_break_lines (raqm_t *rq, size_t glyph_count)
 {
-  int width = 0;
-  int line = 0;
-
-  /* Find possible break points */
-  bool *breaks = calloc (rq->text_len, sizeof (bool));
-  if (!breaks)
-    return false;
-
   /* Sort glyphs in logical order */
   qsort (rq->glyphs, glyph_count, sizeof (raqm_glyph_t), _raqm_logical_sort);
 
   /* Do line breaking */
 
   /* Find possible line break points */
-  if (!_raqm_find_line_breaks (rq, breaks))
+  if (!_raqm_find_line_breaks (rq))
     return false;
-
-  /* Select actual line break points */
-  for (size_t i = 0; i < glyph_count; i++)
-  {
-    size_t j;
-    int word_width = 0;
-
-    rq->glyphs[i].line = line;
-
-    /* Calculate the width to next possible break */
-    for (j = i; j < glyph_count; j++)
-    {
-      uint32_t cluster;
-
-      word_width += rq->glyphs[j].x_advance;
-      /* Add the width of all glyphs with the same cluster */
-      for (; _raqm_next_is_same_cluster (rq, j, glyph_count); j++)
-        word_width += rq->glyphs[j + 1].x_advance;
-
-      /* Find the last character index in this cluster */
-      if (j < glyph_count - 1)
-        cluster = rq->glyphs[j + 1].cluster - 1;
-      else
-        cluster = rq->glyphs[j].cluster;
-
-      if (cluster < rq->text_len - 1 && breaks[cluster + 1])
-        break;
-    }
-
-    if (width + word_width > rq->line_width)
-    {
-      /* Word does not fit, start a new line */
-      line++;
-      width = 0;
-    }
-    else
-    {
-      /* Word fits, append all glyph to the current line */
-      while (i < j && i < glyph_count - 1)
-        rq->glyphs[++i].line = line;
-      width += word_width;
-    }
-  }
 
   /* Then sort glyphs back in visual order */
   qsort (rq->glyphs, glyph_count, sizeof (raqm_glyph_t), _raqm_visual_sort);
-
-  free (breaks);
-
   return true;
 }
 
-static void
-_raqm_align_text (raqm_t *rq, size_t glyph_count)
-{
-  raqm_glyph_t *glyphs = rq->glyphs;
-  int line_width = rq->line_width;
-  raqm_alignment_t alignment = rq->alignment;
-  raqm_alignment_t last_alignment = rq->alignment;
-
-  switch (rq->alignment)
-  {
-    case RAQM_ALIGNMENT_START:
-      if (rq->resolved_dir == RAQM_DIRECTION_RTL)
-        alignment = RAQM_ALIGNMENT_RIGHT;
-      else
-        alignment = RAQM_ALIGNMENT_LEFT;
-      break;
-    case RAQM_ALIGNMENT_END:
-      if (rq->resolved_dir == RAQM_DIRECTION_RTL)
-        alignment = RAQM_ALIGNMENT_LEFT;
-      else
-        alignment = RAQM_ALIGNMENT_RIGHT;
-      break;
-    case RAQM_ALIGNMENT_JUSTIFY:
-      if (rq->resolved_dir == RAQM_DIRECTION_RTL)
-        last_alignment = RAQM_ALIGNMENT_RIGHT;
-      else
-        last_alignment = RAQM_ALIGNMENT_LEFT;
-      break;
-    case RAQM_ALIGNMENT_CENTER:
-    case RAQM_ALIGNMENT_RIGHT:
-    case RAQM_ALIGNMENT_LEFT:
-    default:
-      break;
-  }
-
-  switch (alignment)
-  {
-    case RAQM_ALIGNMENT_RIGHT:
-    {
-      size_t j = 0;
-      int line = -1;
-      for (size_t i = glyph_count - 1; i != 0; i--)
-      {
-        if (glyphs[i].line != line)
-        {
-          int offset = line_width - (glyphs[i].x + glyphs[i].x_advance);
-          line = glyphs[i].line;
-          for (j = i; j != 0 && glyphs[j].line == line; j--)
-          {
-            /* check if at the start of the line there is a space */
-            if (_raqm_is_space_glyph (rq, j) && (line != glyphs[j + 1].line))
-            {
-              int space_width = glyphs[j].x_advance;
-
-              /* apply shift */
-              for (j = i; j != 0 && glyphs[j].line == line; j--)
-              {
-                glyphs[j - 1].x = glyphs[j - 1].x + space_width;
-                glyphs[j - 1].x += offset;
-              }
-            }
-            else
-            {
-              glyphs[j].x += offset;
-            }
-          }
-        }
-        i = j + 1;
-      }
-      break;
-    }
-    case RAQM_ALIGNMENT_CENTER:
-    {
-      size_t j = 0;
-      int line = -1;
-      for (size_t i = glyph_count - 1; i != 0; i--)
-      {
-        if (glyphs[i].line != line)
-        {
-          int offset = (line_width - (glyphs[i].x + glyphs[i].x_advance)) / 2;
-          line = glyphs[i].line;
-          for (j = i; j != 0 && glyphs[j].line == line; j--)
-            glyphs[j].x += offset;
-        }
-        i = j + 1;
-      }
-      break;
-    }
-    case RAQM_ALIGNMENT_JUSTIFY:
-    {
-      int space_count = 0;
-      size_t j = 0;
-      int line = -1;
-      (void)last_alignment;
-      for (size_t i = glyph_count - 1; i != 0; i--)
-      {
-        if (glyphs[i].line != line)
-        {
-          int space_extension = 0;
-          int offset = line_width - (glyphs[i].x + glyphs[i].x_advance);
-          line = glyphs[i].line;
-
-          /* counting spaces in one line */
-          for (j = i; j != 0 && glyphs[j].line == line; j--)
-          {
-            if (_raqm_is_space_glyph (rq, j))
-              space_count++;
-          }
-
-          /* distributing align offset to all spaces */
-          if (space_count == 0)
-            offset = 0;
-          else
-            offset = offset / space_count;
-          for (size_t k = j + 1; glyphs[k].line == line; k++)
-          {
-            glyphs[k].x += space_extension;
-            if (_raqm_is_space_glyph (rq, k))
-              space_extension += offset;
-          }
-        }
-        i = j + 1;
-      }
-      break;
-    }
-    case RAQM_ALIGNMENT_START:
-    case RAQM_ALIGNMENT_END:
-      /* Should have been resolved earlier. */
-      assert(false);
-      break;
-    case RAQM_ALIGNMENT_LEFT:
-    default:
-      break;
-  }
-}
 
 static bool
 _raqm_line_break (raqm_t *rq)
@@ -1375,41 +1119,9 @@ _raqm_line_break (raqm_t *rq)
     count += len;
   }
 
-  if (rq->line_width < 0)
-    return true;
-
   /* Do line breaking */
   if (!_raqm_break_lines (rq, glyph_count))
     return false;
-
-  /* calculating positions */
-  line = 0;
-  x = 0;
-  for (size_t i = 0; i < glyph_count; i++)
-  {
-    FbTypeface* face;
-    int ascender, descender, leading;
-
-    face = rq->text_info[rq->glyphs[i].cluster].ftface;
-    ascender = _raqm_ascender(face);
-    descender = _raqm_descender(face);
-    leading = ascender + descender;
-
-    if (rq->glyphs[i].line != line)
-    {
-      x = 0;
-      line = rq->glyphs[i].line;
-    }
-
-    rq->glyphs[i].x = x + rq->glyphs[i].x_offset;
-    rq->glyphs[i].y = rq->glyphs[i].y_offset - line * leading - ascender;
-
-    x += rq->glyphs[i].x_advance;
-  }
-
-  /* Do text alignment */
-  _raqm_align_text (rq, glyph_count);
-
   return true;
 }
 

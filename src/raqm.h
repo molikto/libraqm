@@ -80,33 +80,6 @@ typedef enum
 } raqm_direction_t;
 
 /**
- * raqm_alignment_t:
- * @RAQM_ALIGNMENT_START: Same as #RAQM_ALIGNMENT_RIGHT if paragraph direction
- *                        is #RAQM_DIRECTION_RTL, same as #RAQM_ALIGNMENT_LEFT
- *                        otherwise.
- * @RAQM_ALIGNMENT_END: Same as #RAQM_ALIGNMENT_LEFT if paragraph direction is
- *                      #RAQM_DIRECTION_RTL, same as #RAQM_ALIGNMENT_RIGHT
- *                      otherwise.
- * @RAQM_ALIGNMENT_RIGHT: Paragraph is right aligned.
- * @RAQM_ALIGNMENT_LEFT: Paragraph is left aligned.
- * @RAQM_ALIGNMENT_CENTER: Paragraph is center aligned..
- * @RAQM_ALIGNMENT_JUSTIFY: Paragraph is justified.
- *
- * Base paragraph alignment, see raqm_set_alignment().
- *
- * Since: 0.3
- */
-typedef enum
-{
-    RAQM_ALIGNMENT_START,
-    RAQM_ALIGNMENT_END,
-    RAQM_ALIGNMENT_RIGHT,
-    RAQM_ALIGNMENT_LEFT,
-    RAQM_ALIGNMENT_CENTER,
-    RAQM_ALIGNMENT_JUSTIFY,
-} raqm_alignment_t;
-
-/**
  * raqm_glyph_t:
  * @index: the index of the glyph in the font file.
  * @x_advance: the glyph advance width in horizontal text.
