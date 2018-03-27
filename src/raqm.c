@@ -199,7 +199,6 @@ struct _raqm {
 struct _raqm_run {
   int            pos;
   int            len;
-  int            line;
 
   hb_direction_t direction;
   hb_script_t    script;
@@ -830,6 +829,7 @@ raqm_get_glyphs (raqm_t *rq,
 
   *length = count;
 
+  rq->glyphs = malloc (sizeof (raqm_glyph_t) * count);
   if (!rq->glyphs)
   {
     *length = 0;

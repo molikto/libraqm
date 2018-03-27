@@ -56,10 +56,6 @@ typedef struct _FbTypeface FbTypeface;
 static hb_font_t* _raqm_create_hb_font(raqm_t *rq,
                       FbTypeface* face);
 
-static int _raqm_ascender(FbTypeface *face);
-
-static int _raqm_descender(FbTypeface *face);
-
 /**
  * raqm_direction_t:
  * @RAQM_DIRECTION_DEFAULT: Detect paragraph direction automatically.
@@ -86,8 +82,6 @@ typedef enum
  * @y_advance: the glyph advance width in vertical text.
  * @x_offset: the horizontal movement of the glyph from the current point.
  * @y_offset: the vertical movement of the glyph from the current point.
- * @x: the absolute x position of the glyph.
- * @y: the absolute y position of the glyph.
  * @cluster: the index of original character in input text.
  * @skface: the @FbTypeface of the glyph.
  *
@@ -102,11 +96,8 @@ typedef struct raqm_glyph_t {
     int y_offset;
     uint32_t cluster;
 		FbTypeface* ftface;
-    int x;
-    int y;
     /*< private >*/
     int visual_index;
-    int line;
 } raqm_glyph_t;
 
 raqm_t *
@@ -137,14 +128,6 @@ raqm_set_language (raqm_t       *rq,
                    const char   *lang,
                    size_t        start,
                    size_t        len);
-
-bool
-raqm_set_width (raqm_t *rq,
-                int    width);
-
-bool
-raqm_set_alignment (raqm_t           *rq,
-                    raqm_alignment_t alignment);
 
 bool
 raqm_add_font_feature  (raqm_t     *rq,
