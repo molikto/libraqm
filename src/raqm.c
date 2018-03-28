@@ -188,6 +188,7 @@ struct _raqm {
 
   raqm_run_t      *runs;
   raqm_glyph_t    *glyphs;
+  int glyphs_size;
 
   _raqm_flags_t    flags;
 
@@ -808,6 +809,11 @@ raqm_get_glyphs (raqm_t *rq,
 {
   size_t count = 0;
 
+	if (rq->glyphs) {
+		*length = rq->glyphs_size;
+		return rq->glyphs;
+	}
+
   if (!rq || !rq->runs || !length)
   {
     if (length)
@@ -818,10 +824,8 @@ raqm_get_glyphs (raqm_t *rq,
   for (raqm_run_t *run = rq->runs; run != NULL; run = run->next)
     count += hb_buffer_get_length (run->buffer);
 
+	rq->glyphs_size = count;
   *length = count;
-
-  if (rq->glyphs)
-    free (rq->glyphs);
 
   rq->glyphs = malloc (sizeof (raqm_glyph_t) * count);
   if (!rq->glyphs)

@@ -53,8 +53,9 @@ struct _FbTypeface;
 
 typedef struct _FbTypeface FbTypeface;
 
-static hb_font_t* _raqm_create_hb_font(raqm_t *rq,
+hb_font_t* _raqm_create_hb_font(raqm_t *rq,
                       FbTypeface* face);
+
 
 /**
  * raqm_direction_t:
