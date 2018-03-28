@@ -31,6 +31,7 @@
 
 #include <fribidi.h>
 #include <hb.h>
+#include <stdlib.h>
 
 #include "raqm.h"
 
