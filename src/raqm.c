@@ -788,6 +788,11 @@ static uint32_t
 _raqm_u32_to_u8_index (raqm_t   *rq,
                        uint32_t  index);
 
+
+int raqm_get_script(raqm_t *rq, int index) {
+	return rq->text_info[index].script;
+}
+
 /**
  * raqm_get_glyphs:
  * @rq: a #raqm_t.

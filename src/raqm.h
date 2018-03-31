@@ -160,11 +160,15 @@ raqm_index_to_position (raqm_t *rq,
                         int *x,
                         int *y);
 
+
 bool
 raqm_position_to_index (raqm_t *rq,
                         int x,
                         int y,
                         size_t *index);
+
+int
+raqm_get_script(raqm_t *rq, int index);
 
 #ifdef __cplusplus
 }
