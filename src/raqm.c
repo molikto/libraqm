@@ -337,7 +337,6 @@ _raqm_free_runs (raqm_t *rq)
     runs = runs->next;
 
     hb_buffer_destroy (run->buffer);
-    hb_font_destroy (run->font);
     free (run);
   }
 }
