@@ -76,32 +76,6 @@ typedef enum
     RAQM_DIRECTION_TTB
 } raqm_direction_t;
 
-/**
- * raqm_alignment_t:
- * @RAQM_ALIGNMENT_START: Same as #RAQM_ALIGNMENT_RIGHT if paragraph direction
- *                        is #RAQM_DIRECTION_RTL, same as #RAQM_ALIGNMENT_LEFT
- *                        otherwise.
- * @RAQM_ALIGNMENT_END: Same as #RAQM_ALIGNMENT_LEFT if paragraph direction is
- *                      #RAQM_DIRECTION_RTL, same as #RAQM_ALIGNMENT_RIGHT
- *                      otherwise.
- * @RAQM_ALIGNMENT_RIGHT: Paragraph is right aligned.
- * @RAQM_ALIGNMENT_LEFT: Paragraph is left aligned.
- * @RAQM_ALIGNMENT_CENTER: Paragraph is center aligned..
- * @RAQM_ALIGNMENT_JUSTIFY: Paragraph is justified.
- *
- * Base paragraph alignment, see raqm_set_alignment().
- *
- * Since: 0.3
- */
-typedef enum
-{
-    RAQM_ALIGNMENT_START,
-    RAQM_ALIGNMENT_END,
-    RAQM_ALIGNMENT_RIGHT,
-    RAQM_ALIGNMENT_LEFT,
-    RAQM_ALIGNMENT_CENTER,
-    RAQM_ALIGNMENT_JUSTIFY,
-} raqm_alignment_t;
 
 /**
  * raqm_glyph_t:
@@ -161,14 +135,6 @@ raqm_set_language (raqm_t       *rq,
                    const char   *lang,
                    size_t        start,
                    size_t        len);
-
-bool
-raqm_set_width (raqm_t *rq,
-                int    width);
-
-bool
-raqm_set_alignment (raqm_t           *rq,
-                    raqm_alignment_t alignment);
 
 bool
 raqm_add_font_feature  (raqm_t     *rq,
