@@ -199,7 +199,6 @@ struct _raqm {
 struct _raqm_run {
   int            pos;
   int            len;
-  int            line;
 
   hb_direction_t direction;
   hb_script_t    script;
@@ -1079,8 +1078,6 @@ _raqm_next_is_same_cluster (raqm_t *rq, size_t idx, size_t count)
 static bool
 _raqm_break_lines (raqm_t *rq, size_t glyph_count)
 {
-  int width = 0;
-  int line = 0;
 
   /* Find possible break points */
   bool *breaks = calloc (rq->text_len, sizeof (bool));
@@ -1110,7 +1107,6 @@ _raqm_line_break (raqm_t *rq)
   size_t count = 0;
   size_t glyph_count = 0;
   int x = 0;
-  int line = 0;
 
   /* counting total glyphs */
   for (raqm_run_t *run = rq->runs; run != NULL; run = run->next)
@@ -1146,7 +1142,6 @@ _raqm_line_break (raqm_t *rq)
       rq->glyphs[count + i].ftface =
         rq->text_info[rq->glyphs[count + i].cluster].ftface;
       rq->glyphs[count + i].visual_index = count + i;
-      rq->glyphs[count + i].line = 0;
 
       x += position[i].x_advance;
     }
@@ -1159,7 +1154,6 @@ _raqm_line_break (raqm_t *rq)
     return false;
 
   /* calculating positions */
-  line = 0;
   x = 0;
   for (size_t i = 0; i < glyph_count; i++)
   {
@@ -1171,14 +1165,8 @@ _raqm_line_break (raqm_t *rq)
     descender = -face->size->metrics.descender;
     leading = ascender + descender;
 
-    if (rq->glyphs[i].line != line)
-    {
-      x = 0;
-      line = rq->glyphs[i].line;
-    }
-
     rq->glyphs[i].x = x + rq->glyphs[i].x_offset;
-    rq->glyphs[i].y = rq->glyphs[i].y_offset - line * leading - ascender;
+    rq->glyphs[i].y = rq->glyphs[i].y_offset - ascender;
 
     x += rq->glyphs[i].x_advance;
   }
