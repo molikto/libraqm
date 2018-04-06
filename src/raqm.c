@@ -1053,10 +1053,7 @@ _raqm_visual_sort (const void *a, const void *b)
   raqm_glyph_t *ia = (raqm_glyph_t *) a;
   raqm_glyph_t *ib = (raqm_glyph_t *) b;
 
-  if (ia->line == ib->line)
-    return ia->visual_index - ib->visual_index;
-  else
-    return ia->line - ib->line;
+	return ia->visual_index - ib->visual_index;
 }
 
 static bool
