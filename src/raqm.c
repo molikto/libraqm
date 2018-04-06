@@ -1039,19 +1039,17 @@ _raqm_line_break (raqm_t *rq)
 {
   size_t count = 0;
   size_t glyph_count = 0;
-  int x = 0;
-
   /* counting total glyphs */
   for (raqm_run_t *run = rq->runs; run != NULL; run = run->next)
     glyph_count += hb_buffer_get_length (run->buffer);
 
   rq->glyphs = malloc (sizeof (raqm_glyph_t) * glyph_count);
+  rq->glyphs_size = glyph_count;
   if (!rq->glyphs)
     return false;
 
   /* populating glyphs */
   count = 0;
-  x = 0;
   for (raqm_run_t *run = rq->runs; run != NULL; run = run->next)
   {
     size_t len;
@@ -1073,8 +1071,6 @@ _raqm_line_break (raqm_t *rq)
       rq->glyphs[count + i].ftface =
         rq->text_info[rq->glyphs[count + i].cluster].ftface;
       rq->glyphs[count + i].visual_index = count + i;
-
-      x += position[i].x_advance;
     }
 
     count += len;
