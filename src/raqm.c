@@ -839,10 +839,6 @@ raqm_get_glyphs (raqm_t *rq,
 	rq->glyphs_size = count;
   *length = count;
 
-<<<<<<< HEAD
-  rq->glyphs = malloc (sizeof (raqm_glyph_t) * count);
-=======
->>>>>>> 103689e102dca0eef1b4cab5718123ada9ac13ac
   if (!rq->glyphs)
   {
     *length = 0;
@@ -858,7 +854,6 @@ raqm_get_glyphs (raqm_t *rq,
                  "line: %02d\tfont: %s\n",
                  rq->glyphs[i].index, rq->glyphs[i].x_offset,
                  rq->glyphs[i].y_offset, rq->glyphs[i].x_advance,
-                 rq->glyphs[i].line,
                  rq->glyphs[i].ftface->family_name);
   }
 #endif
@@ -1009,7 +1004,7 @@ _raqm_reorder_runs (const FriBidiCharType *types,
 }
 
 static bool
-_raqm_find_line_breaks (raqm_t *rq, bool *result)
+_raqm_find_line_breaks (raqm_t *rq)
 {
   char *breaks = NULL;
   const char *lang;
@@ -1025,12 +1020,7 @@ _raqm_find_line_breaks (raqm_t *rq, bool *result)
 
   for (size_t i = 0; i < rq->text_len; i++)
   {
-    if (breaks[i] == LINEBREAK_MUSTBREAK || breaks[i] == LINEBREAK_ALLOWBREAK)
-    {
-      result[i] = true;
-    }
-    else
-      result[i] = false;
+  	rq->glyphs[i].linebreak = breaks[i];
   }
 
   free (breaks);
@@ -1087,7 +1077,7 @@ _raqm_break_lines (raqm_t *rq, size_t glyph_count)
   /* Do line breaking */
 
   /* Find possible line break points */
-  if (!_raqm_find_line_breaks (rq, breaks))
+  if (!_raqm_find_line_breaks (rq))
     return false;
 
   /* Then sort glyphs back in visual order */
@@ -1134,8 +1124,6 @@ _raqm_line_break (raqm_t *rq)
       rq->glyphs[count + i].y_advance = position[i].y_advance;
       rq->glyphs[count + i].x_offset = position[i].x_offset;
       rq->glyphs[count + i].y_offset = position[i].y_offset;
-      rq->glyphs[count + i].x = x + position[i].x_offset;
-      rq->glyphs[count + i].y = position[i].y_offset;
       rq->glyphs[count + i].ftface =
         rq->text_info[rq->glyphs[count + i].cluster].ftface;
       rq->glyphs[count + i].visual_index = count + i;
@@ -1149,24 +1137,6 @@ _raqm_line_break (raqm_t *rq)
   /* Do line breaking */
   if (!_raqm_break_lines (rq, glyph_count))
     return false;
-
-  /* calculating positions */
-  x = 0;
-  for (size_t i = 0; i < glyph_count; i++)
-  {
-    FT_Face face;
-    int ascender, descender, leading;
-
-    face = rq->text_info[rq->glyphs[i].cluster].ftface;
-    ascender = face->size->metrics.ascender;
-    descender = -face->size->metrics.descender;
-    leading = ascender + descender;
-
-    rq->glyphs[i].x = x + rq->glyphs[i].x_offset;
-    rq->glyphs[i].y = rq->glyphs[i].y_offset - ascender;
-
-    x += rq->glyphs[i].x_advance;
-  }
 
   return true;
 }

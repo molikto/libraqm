@@ -100,6 +100,7 @@ typedef struct raqm_glyph_t {
 		FbTypeface* ftface;
     /*< private >*/
     int visual_index;
+    char linebreak;
 } raqm_glyph_t;
 
 raqm_t *
