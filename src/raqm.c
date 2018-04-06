@@ -819,66 +819,12 @@ raqm_glyph_t *
 raqm_get_glyphs (raqm_t *rq,
                  size_t *length)
 {
-  size_t count = 0;
-
 	if (rq->glyphs) {
 		*length = rq->glyphs_size;
 		return rq->glyphs;
+	} else {
+		return 0;
 	}
-
-  if (!rq || !rq->runs || !length)
-  {
-    if (length)
-      *length = 0;
-    return NULL;
-  }
-
-  for (raqm_run_t *run = rq->runs; run != NULL; run = run->next)
-    count += hb_buffer_get_length (run->buffer);
-
-	rq->glyphs_size = count;
-  *length = count;
-
-  if (!rq->glyphs)
-  {
-    *length = 0;
-    return NULL;
-  }
-
-#ifdef RAQM_TESTING
-  RAQM_TEST ("Glyph information:\n");
-
-  for (size_t i = 0; i < *length; i++)
-  {
-      RAQM_TEST ("glyph [%d]\tx_offset: %d\ty_offset: %d\tx_advance: %d\t"
-                 "line: %02d\tfont: %s\n",
-                 rq->glyphs[i].index, rq->glyphs[i].x_offset,
-                 rq->glyphs[i].y_offset, rq->glyphs[i].x_advance,
-                 rq->glyphs[i].ftface->family_name);
-  }
-#endif
-
-  if (rq->flags & RAQM_FLAG_UTF8)
-  {
-#ifdef RAQM_TESTING
-    RAQM_TEST ("\nUTF-32 clusters:");
-    for (size_t i = 0; i < count; i++)
-      RAQM_TEST (" %02d", rq->glyphs[i].cluster);
-    RAQM_TEST ("\n");
-#endif
-
-    for (size_t i = 0; i < count; i++)
-      rq->glyphs[i].cluster = _raqm_u32_to_u8_index (rq,
-                                                     rq->glyphs[i].cluster);
-
-#ifdef RAQM_TESTING
-    RAQM_TEST ("UTF-8 clusters: ");
-    for (size_t i = 0; i < count; i++)
-      RAQM_TEST (" %02d", rq->glyphs[i].cluster);
-    RAQM_TEST ("\n");
-#endif
-  }
-  return rq->glyphs;
 }
 
 static bool
