@@ -69,7 +69,7 @@
  *     int ret = 1;
  *
  *     FT_Library library = NULL;
- *     sk_typeface_t* face = NULL;
+ *     void* face = NULL;
  *
  *     if (argc < 5)
  *     {
@@ -165,7 +165,7 @@ typedef enum {
 } _raqm_flags_t;
 
 typedef struct {
-  sk_typeface_t*       ftface;
+  void*       ftface;
   hb_language_t lang;
   hb_script_t   script;
 } _raqm_text_info;
@@ -620,7 +620,7 @@ raqm_add_font_feature (raqm_t     *rq,
 
 static bool
 _raqm_set_freetype_face (raqm_t *rq,
-                         sk_typeface_t* face,
+                         void* face,
                          size_t  start,
                          size_t  end)
 {
@@ -647,9 +647,9 @@ _raqm_set_freetype_face (raqm_t *rq,
 /**
  * raqm_set_freetype_face:
  * @rq: a #raqm_t.
- * @face: an #sk_typeface_t*.
+ * @face: an #void*.
  *
- * Sets an #sk_typeface_t* to be used for all characters in @rq.
+ * Sets an #void* to be used for all characters in @rq.
  *
  * See also raqm_set_freetype_face_range().
  *
@@ -660,7 +660,7 @@ _raqm_set_freetype_face (raqm_t *rq,
  */
 bool
 raqm_set_freetype_face (raqm_t *rq,
-                        sk_typeface_t* face)
+                        void* face)
 {
   return _raqm_set_freetype_face (rq, face, 0, rq->text_len);
 }
@@ -668,11 +668,11 @@ raqm_set_freetype_face (raqm_t *rq,
 /**
  * raqm_set_freetype_face_range:
  * @rq: a #raqm_t.
- * @face: an #sk_typeface_t*.
+ * @face: an #void*.
  * @start: index of first character that should use @face.
  * @len: number of characters using @face.
  *
- * Sets an #sk_typeface_t* to be used for @len-number of characters staring at @start.
+ * Sets an #void* to be used for @len-number of characters staring at @start.
  * The @start and @len are input string array indices (i.e. counting bytes in
  * UTF-8 and scaler values in UTF-32).
  *
@@ -689,7 +689,7 @@ raqm_set_freetype_face (raqm_t *rq,
  */
 bool
 raqm_set_freetype_face_range (raqm_t *rq,
-                              sk_typeface_t* face,
+                              void* face,
                               size_t  start,
                               size_t  len)
 {
@@ -1218,7 +1218,7 @@ _raqm_itemize (raqm_t *rq)
     {
       run->pos = runs[i].pos + runs[i].len - 1;
       run->script = rq->text_info[run->pos].script;
-      run->font = _raqm_create_hb_font (rq, rq->text_info[run->pos].ftface);
+      run->font = _raqm_create_hb_font (rq->text_info[run->pos].ftface);
       for (int j = runs[i].len - 1; j >= 0; j--)
       {
         _raqm_text_info info = rq->text_info[runs[i].pos + j];
@@ -1234,7 +1234,7 @@ _raqm_itemize (raqm_t *rq)
           newrun->len = 1;
           newrun->direction = _raqm_hb_dir (rq, runs[i].level);
           newrun->script = info.script;
-          newrun->font = _raqm_create_hb_font (rq, info.ftface);
+          newrun->font = _raqm_create_hb_font (info.ftface);
           run->next = newrun;
           run = newrun;
         }
@@ -1249,7 +1249,7 @@ _raqm_itemize (raqm_t *rq)
     {
       run->pos = runs[i].pos;
       run->script = rq->text_info[run->pos].script;
-      run->font = _raqm_create_hb_font (rq, rq->text_info[run->pos].ftface);
+      run->font = _raqm_create_hb_font (rq->text_info[run->pos].ftface);
       for (size_t j = 0; j < runs[i].len; j++)
       {
         _raqm_text_info info = rq->text_info[runs[i].pos + j];
@@ -1265,7 +1265,7 @@ _raqm_itemize (raqm_t *rq)
           newrun->len = 1;
           newrun->direction = _raqm_hb_dir (rq, runs[i].level);
           newrun->script = info.script;
-          newrun->font = _raqm_create_hb_font (rq, info.ftface);
+          newrun->font = _raqm_create_hb_font (info.ftface);
           run->next = newrun;
           run = newrun;
         }
