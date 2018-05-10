@@ -50,12 +50,12 @@ extern "C" {
  */
 typedef struct _raqm raqm_t;
 
-struct _FbTypeface;
+struct sk_typeface_t;
 
-typedef struct _FbTypeface FbTypeface;
+typedef struct sk_typeface_t sk_typeface_t;
 
 hb_font_t* _raqm_create_hb_font(raqm_t *rq,
-                      FbTypeface* face);
+                      sk_typeface_t* face);
 
 
 /**
@@ -86,7 +86,7 @@ typedef enum
  * @x_offset: the horizontal movement of the glyph from the current point.
  * @y_offset: the vertical movement of the glyph from the current point.
  * @cluster: the index of original character in input text.
- * @skface: the @FbTypeface of the glyph.
+ * @skface: the @sk_typeface_t of the glyph.
  *
  * The structure that holds information about output glyphs, returned from
  * raqm_get_glyphs().
@@ -98,7 +98,7 @@ typedef struct raqm_glyph_t {
     int x_offset;
     int y_offset;
     uint32_t cluster;
-		FbTypeface* ftface;
+		sk_typeface_t* ftface;
     /*< private >*/
     int visual_index;
     char linebreak;
@@ -140,11 +140,11 @@ raqm_add_font_feature  (raqm_t     *rq,
 
 bool
 raqm_set_freetype_face (raqm_t *rq,
-                        FbTypeface* face);
+                        sk_typeface_t* face);
 
 bool
 raqm_set_freetype_face_range (raqm_t *rq,
-                              FbTypeface* face,
+                              sk_typeface_t* face,
                               size_t  start,
                               size_t  len);
 

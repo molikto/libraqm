@@ -69,7 +69,7 @@
  *     int ret = 1;
  *
  *     FT_Library library = NULL;
- *     FbTypeface* face = NULL;
+ *     sk_typeface_t* face = NULL;
  *
  *     if (argc < 5)
  *     {
@@ -165,7 +165,7 @@ typedef enum {
 } _raqm_flags_t;
 
 typedef struct {
-  FbTypeface*       ftface;
+  sk_typeface_t*       ftface;
   hb_language_t lang;
   hb_script_t   script;
 } _raqm_text_info;
@@ -620,7 +620,7 @@ raqm_add_font_feature (raqm_t     *rq,
 
 static bool
 _raqm_set_freetype_face (raqm_t *rq,
-                         FbTypeface* face,
+                         sk_typeface_t* face,
                          size_t  start,
                          size_t  end)
 {
@@ -647,9 +647,9 @@ _raqm_set_freetype_face (raqm_t *rq,
 /**
  * raqm_set_freetype_face:
  * @rq: a #raqm_t.
- * @face: an #FbTypeface*.
+ * @face: an #sk_typeface_t*.
  *
- * Sets an #FbTypeface* to be used for all characters in @rq.
+ * Sets an #sk_typeface_t* to be used for all characters in @rq.
  *
  * See also raqm_set_freetype_face_range().
  *
@@ -660,7 +660,7 @@ _raqm_set_freetype_face (raqm_t *rq,
  */
 bool
 raqm_set_freetype_face (raqm_t *rq,
-                        FbTypeface* face)
+                        sk_typeface_t* face)
 {
   return _raqm_set_freetype_face (rq, face, 0, rq->text_len);
 }
@@ -668,11 +668,11 @@ raqm_set_freetype_face (raqm_t *rq,
 /**
  * raqm_set_freetype_face_range:
  * @rq: a #raqm_t.
- * @face: an #FbTypeface*.
+ * @face: an #sk_typeface_t*.
  * @start: index of first character that should use @face.
  * @len: number of characters using @face.
  *
- * Sets an #FbTypeface* to be used for @len-number of characters staring at @start.
+ * Sets an #sk_typeface_t* to be used for @len-number of characters staring at @start.
  * The @start and @len are input string array indices (i.e. counting bytes in
  * UTF-8 and scaler values in UTF-32).
  *
@@ -689,7 +689,7 @@ raqm_set_freetype_face (raqm_t *rq,
  */
 bool
 raqm_set_freetype_face_range (raqm_t *rq,
-                              FbTypeface* face,
+                              sk_typeface_t* face,
                               size_t  start,
                               size_t  len)
 {
