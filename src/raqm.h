@@ -38,6 +38,7 @@
 extern "C" {
 #endif
 
+#define size_t int
 
 /**
  * raqm_t:
