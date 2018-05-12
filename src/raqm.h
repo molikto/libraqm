@@ -95,8 +95,8 @@ typedef struct raqm_glyph_t {
     uint32_t cluster;
 		void* ftface;
     char linebreak;
-    /*< private >*/
     int visual_index;
+    int line;
 } raqm_glyph_t;
 
 raqm_t *

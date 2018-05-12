@@ -983,15 +983,6 @@ _raqm_logical_sort (const void *a, const void *b)
   return ia->cluster - ib->cluster;
 }
 
-static int
-_raqm_visual_sort (const void *a, const void *b)
-{
-  raqm_glyph_t *ia = (raqm_glyph_t *) a;
-  raqm_glyph_t *ib = (raqm_glyph_t *) b;
-
-	return ia->visual_index - ib->visual_index;
-}
-
 static bool
 _raqm_is_space_glyph (raqm_t *rq, int idx)
 {
@@ -1025,9 +1016,6 @@ _raqm_break_lines (raqm_t *rq, size_t glyph_count)
   /* Find possible line break points */
   if (!_raqm_find_line_breaks (rq))
     return false;
-
-  /* Then sort glyphs back in visual order */
-  qsort (rq->glyphs, glyph_count, sizeof (raqm_glyph_t), _raqm_visual_sort);
 
   free (breaks);
 
